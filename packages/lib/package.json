@@ -2,17 +2,37 @@
   "name": "@momolinks/lib",
   "version": "1.0.0",
   "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types.ts",
-    "./validators": "./src/validators.ts",
-    "./shortcode": "./src/shortcode.ts",
-    "./url": "./src/url.ts",
-    "./analytics": "./src/analytics.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./validators": {
+      "types": "./dist/validators.d.ts",
+      "default": "./dist/validators.js"
+    },
+    "./shortcode": {
+      "types": "./dist/shortcode.d.ts",
+      "default": "./dist/shortcode.js"
+    },
+    "./url": {
+      "types": "./dist/url.d.ts",
+      "default": "./dist/url.js"
+    },
+    "./analytics": {
+      "types": "./dist/analytics.d.ts",
+      "default": "./dist/analytics.js"
+    }
   },
+  "files": ["dist"],
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint src",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
@@ -24,6 +44,7 @@
   },
   "devDependencies": {
     "@momolinks/config": "workspace:*",
+    "@types/node": "^20.12.7",
     "@types/ua-parser-js": "^0.7.39",
     "typescript": "^5.4.5"
   }
