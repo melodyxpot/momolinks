@@ -2,15 +2,18 @@
 
 import {
   Button,
+  Calendar,
   Card,
+  DateField,
+  DatePicker,
   Input,
+  Label,
   TextArea,
   TextField,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, type ComponentPropsWithRef } from "react";
 import { CopyButton, PageHeader, QRCodeBlock } from "@momolinks/ui";
 import { ApiError, api } from "@/lib/api";
-import { Label } from "recharts";
 import Link from "next/link";
 
 interface CreateResponse {
@@ -25,8 +28,26 @@ export default function NewLinkPage() {
   const [customCode, setCustomCode] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
+  const [expiresAt, setExpiresAt] = useState<
+    ComponentPropsWithRef<typeof DatePicker>["value"]
+  >(null);
   const [loading, setLoading] = useState(false);
+
+  function formatExpiresAt(value: typeof expiresAt): string | undefined {
+    if (!value) return undefined;
+    if (typeof value === "string") return value;
+
+    const maybeDate = value as unknown as {
+      toAbsoluteString?: () => string;
+      toString: () => string;
+    };
+
+    if (typeof maybeDate.toAbsoluteString === "function") {
+      return maybeDate.toAbsoluteString();
+    }
+
+    return maybeDate.toString();
+  }
   const [created, setCreated] = useState<CreateResponse | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +59,7 @@ export default function NewLinkPage() {
         customCode: customCode.trim() || undefined,
         title: title.trim() || undefined,
         description: description.trim() || undefined,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+        expiresAt: formatExpiresAt(expiresAt),
       });
       setCreated(out);
       console.log("Short link created!");
@@ -81,7 +102,7 @@ export default function NewLinkPage() {
                     setCustomCode("");
                     setTitle("");
                     setDescription("");
-                    setExpiresAt("");
+                    setExpiresAt(null);
                   }}
                 >
                   Create another
@@ -93,7 +114,7 @@ export default function NewLinkPage() {
         <Card>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <TextField isRequired>
-              <Label name="url">Destination URL</Label>
+              <Label>Destination URL</Label>
               <Input
                 type="url"
                 name="url"
@@ -111,13 +132,51 @@ export default function NewLinkPage() {
                   onChange={(e) => setCustomCode(e.currentTarget.value)}
                 />
               </TextField>
-              <TextField>
-                <Label>Expires at (optional)</Label>
-                <Input
-                  type="datetime-local"
+              <TextField aria-label="expiresAt">
+                <DatePicker
+                  name="expiresAt"
                   value={expiresAt}
-                  onChange={(e) => setExpiresAt(e.currentTarget.value)}
-                />
+                  onChange={setExpiresAt}
+                  className="w-full"
+                  aria-label="Expires at"
+                >
+                  <Label>Expires at (optional)</Label>
+                  <DateField.Group fullWidth>
+                    <DateField.Input>
+                      {(segment) => <DateField.Segment segment={segment} />}
+                    </DateField.Input>
+                    <DateField.Suffix>
+                      <DatePicker.Trigger aria-label="Choose expiration date">
+                        <DatePicker.TriggerIndicator />
+                      </DatePicker.Trigger>
+                    </DateField.Suffix>
+                  </DateField.Group>
+                  <DatePicker.Popover>
+                    <Calendar aria-label="Expiration date">
+                      <Calendar.Header>
+                        <Calendar.YearPickerTrigger>
+                          <Calendar.YearPickerTriggerHeading />
+                          <Calendar.YearPickerTriggerIndicator />
+                        </Calendar.YearPickerTrigger>
+                        <Calendar.NavButton slot="previous" />
+                        <Calendar.NavButton slot="next" />
+                      </Calendar.Header>
+                      <Calendar.Grid>
+                        <Calendar.GridHeader>
+                          {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                        </Calendar.GridHeader>
+                        <Calendar.GridBody>
+                          {(date) => <Calendar.Cell date={date} />}
+                        </Calendar.GridBody>
+                      </Calendar.Grid>
+                      <Calendar.YearPickerGrid>
+                        <Calendar.YearPickerGridBody>
+                          {({ year }) => <Calendar.YearPickerCell year={year} />}
+                        </Calendar.YearPickerGridBody>
+                      </Calendar.YearPickerGrid>
+                    </Calendar>
+                  </DatePicker.Popover>
+                </DatePicker>
               </TextField>
             </div>
             <TextField>

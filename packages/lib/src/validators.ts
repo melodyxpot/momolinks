@@ -42,10 +42,15 @@ export const linkRulesSchema = z
   })
   .optional();
 
+const dateOrDateTime = z.union([
+  z.string().datetime(),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+]);
+
 export const createLinkSchema = z.object({
   targetUrl: urlSchema,
   customCode: codeSchema.optional(),
-  expiresAt: z.string().datetime().optional().nullable(),
+  expiresAt: dateOrDateTime.optional().nullable(),
   title: z.string().max(120).optional(),
   description: z.string().max(500).optional(),
   rules: linkRulesSchema,
@@ -53,7 +58,7 @@ export const createLinkSchema = z.object({
 
 export const updateLinkSchema = z.object({
   targetUrl: urlSchema.optional(),
-  expiresAt: z.string().datetime().optional().nullable(),
+  expiresAt: dateOrDateTime.optional().nullable(),
   enabled: z.boolean().optional(),
   title: z.string().max(120).optional(),
   description: z.string().max(500).optional(),
