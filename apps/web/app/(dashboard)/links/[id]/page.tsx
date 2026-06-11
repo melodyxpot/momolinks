@@ -49,6 +49,7 @@ export default function LinkDetailPage() {
   const byCountry = Object.entries(stats.byCountry).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const byDevice = Object.entries(stats.byDevice).sort((a, b) => b[1] - a[1]);
   const byReferrer = Object.entries(stats.byReferrer).sort((a, b) => b[1] - a[1]);
+  const singleBarSize = stats.byDay.length === 1 ? 24 : undefined;
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -97,12 +98,23 @@ export default function LinkDetailPage() {
         <h3 className="mb-4 text-base font-semibold">Clicks (last 30 days)</h3>
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.byDay}>
+            <BarChart data={stats.byDay} barCategoryGap="20%" barGap={4}>
               <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip cursor={{ fillOpacity: 0.1 }} />
-              <Bar dataKey="clicks" fill="currentColor" className="fill-primary" radius={[4, 4, 0, 0]} />
+              <Tooltip
+                cursor={{ fill: '#111827', fillOpacity: 0.06 }}
+                contentStyle={{ backgroundColor: 'rgba(17,24,39,0.95)', border: 'none' }}
+                itemStyle={{ color: '#fff' }}
+                labelStyle={{ color: '#9CA3AF' }}
+              />
+              <Bar
+                dataKey="clicks"
+                fill="currentColor"
+                className="fill-primary"
+                radius={[4, 4, 0, 0]}
+                barSize={singleBarSize}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
